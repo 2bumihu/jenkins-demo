@@ -1,7 +1,9 @@
 
 pipeline {
     agent any
-
+    triggers {
+        cron('0 2 * * *')
+    }
     options {
         skipDefaultCheckout()
     }
