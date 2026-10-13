@@ -2,34 +2,45 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout()
+    }
+
     stages {
-        stage('第一阶段：检查环境') {
+        stage('第一阶段：拉取代码') {
             steps {
-                echo 'Jenkinsfile 加载成功！'
-                bat 'ver'
+                echo '开始拉取 GitHub 代码'
+                checkout scm
             }
         }
 
-        stage('第二阶段：执行测试') {
+        stage('第二阶段：检查 Python 环境') {
             steps {
-                bat 'echo Hello Jenkinsfile!'
+                bat 'python --version'
             }
         }
 
-        stage('第三阶段：完成任务') {
+        stage('第三阶段：安装依赖') {
             steps {
-                echo '测试任务执行完成'
+                bat 'python -m venv .venv'
+                bat '.venv\\Scripts\\python.exe -m pip install -r requirements.txt'
+            }
+        }
+
+        stage('第四阶段：执行 pytest 测试') {
+            steps {
+                bat '.venv\\Scripts\\python.exe -m pytest -v tests'
             }
         }
     }
 
     post {
         success {
-            echo 'Jenkinsfile 流水线执行成功！'
+            echo 'pytest 自动化测试执行成功！'
         }
 
         failure {
-            echo 'Jenkinsfile 流水线执行失败！'
+            echo 'pytest 自动化测试执行失败！'
         }
     }
 }
